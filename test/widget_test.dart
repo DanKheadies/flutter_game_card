@@ -5,26 +5,44 @@
 // gestures. You can also use WidgetTester to find child widgets in the widget
 // tree, read text, and verify that the values of widget properties are correct.
 
-import 'package:flutter/material.dart';
+import 'package:flutter_game_card/helpers/helpers.dart';
+import 'package:flutter_game_card/main.dart';
+import 'package:flutter_game_card/widgets/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:flutter_game_card/main.dart';
-
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('Smoke & mirrors test', (WidgetTester tester) async {
+    // Setup mock storage.
+    initHydratedStorage();
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    // Build our game and trigger a frame.
+    await tester.pumpWidget(const CardGame());
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    // Verify that the 'Play' button is shown.
+    expect(find.text('Play'), findsOneWidget);
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    // Verify that the 'Settings' button is shown.
+    expect(find.text('Settings'), findsOneWidget);
+
+    // Go to 'Settings'.
+    await tester.tap(find.text('Settings'));
+    await tester.pumpAndSettle();
+    expect(find.text('Music'), findsOneWidget);
+
+    // Go back to main menu.
+    await tester.tap(find.text('Back'));
+    await tester.pumpAndSettle();
+
+    // Tap 'Play'.
+    await tester.tap(find.text('Play'));
+    await tester.pumpAndSettle();
+    expect(find.byType(PlayingCardWidget), findsWidgets);
+
+    // Tap 'Back'.
+    await tester.tap(find.text('Back'));
+    await tester.pumpAndSettle();
+
+    // Verify we're back on the homepage.
+    expect(find.text('Play'), findsOneWidget);
   });
 }
